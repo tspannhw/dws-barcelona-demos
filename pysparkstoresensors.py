@@ -8,13 +8,13 @@ from operator import add
 from pyspark.sql import SparkSession
 pd.options.display.html.table_schema = True
 
+# article:  https://community.hortonworks.com/articles/239961/using-cloudera-data-science-workbench-with-apache.html
 spark = SparkSession\
   .builder\
   .appName("Gluon Results")\
   .getOrCreate()
 
 filename = '{0}'.format( uuid.uuid4())
-
 default_value = 'NA'
 
 row = {}
@@ -28,12 +28,13 @@ row['class1'] = os.getenv('class1', default_value)
 row['cpu'] = os.getenv('cpu', default_value)
 row['pct1'] = os.getenv('pct1', default_value)
 row['shape'] = os.getenv('shape', default_value)
-
 json_string = json.dumps(row)
             
-print(json_string)
-
+# print(json_string)
 df = spark.read.json(spark.sparkContext.parallelize([json_string]))
 df.show(truncate=False)
+
+# Store the parquet  
+df.write.parquet("/tmp/gluon/" + filename + ".parquet")
 
 spark.stop()
